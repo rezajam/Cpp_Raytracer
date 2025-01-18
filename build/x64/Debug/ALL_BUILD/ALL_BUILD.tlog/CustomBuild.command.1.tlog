@@ -1,0 +1,10 @@
+^C:\USERS\REZVJ\ONEDRIVE\DESKTOP\C++\RAYTRACING\TESTING\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/rezvj/OneDrive/Desktop/C++/Raytracing/Testing -BC:/Users/rezvj/OneDrive/Desktop/C++/Raytracing/Testing/build --check-stamp-file C:/Users/rezvj/OneDrive/Desktop/C++/Raytracing/Testing/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

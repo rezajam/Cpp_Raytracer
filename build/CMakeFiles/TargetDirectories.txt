@@ -1,0 +1,3 @@
+C:/Users/rezvj/OneDrive/Desktop/C++/Raytracing/Testing/build/CMakeFiles/raytracer.dir
+C:/Users/rezvj/OneDrive/Desktop/C++/Raytracing/Testing/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/rezvj/OneDrive/Desktop/C++/Raytracing/Testing/build/CMakeFiles/ZERO_CHECK.dir
