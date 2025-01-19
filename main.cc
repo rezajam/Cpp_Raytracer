@@ -67,6 +67,7 @@ std::clog << "\rDone.                 \n";
     // ... like this:
     // ... Scanlines remaining: 5,  4,  3,  2,  1,  0  all in one line.
 
+/* ------------------------ USING COLOR.H and VEC3.H ------------------------ */
 /* ----------------------------------- [4] ---------------------------------- */
     // write_color is a function that writes the color to the output stream.
     // ... it takes the output stream and the color as arguments.
