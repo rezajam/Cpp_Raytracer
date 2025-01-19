@@ -1,3 +1,6 @@
+#include "color.h"
+#include "vec3.h"
+
 #include <iostream>
 
 int main() {
@@ -17,16 +20,20 @@ int main() {
         //[3]
  
         for (int i = 0; i < image_width; ++i) {
-            auto r = double(i) / (image_width - 1);  // Horizontal gradient for red
-            auto g = double(j) / (image_height - 1); // Vertical gradient for green
-            auto b = 0.0; // No blue
+            // auto r = double(i) / (image_width - 1);  // Horizontal gradient for red
+            // auto g = double(j) / (image_height - 1); // Vertical gradient for green
+            // auto b = 0.0; // No blue
 
-            int ir = static_cast<int>(255.999 * r);
-            int ig = static_cast<int>(255.999 * g);
-            int ib = static_cast<int>(255.999 * b);
-            //[2]
+            // int ir = static_cast<int>(255.999 * r);
+            // int ig = static_cast<int>(255.999 * g);
+            // int ib = static_cast<int>(255.999 * b);
+            // //[2]
 
-            std::cout << ir << " " << ig << " " << ib << "\n";
+            // std::cout << ir << " " << ig << " " << ib << "\n";
+            auto pixel_color = color(double(i)/(image_width-1), double(j)/(image_height-1), 0);
+            //[4]
+            write_color(std::cout, pixel_color);
+            //[5]
         }
     }
 
@@ -59,3 +66,14 @@ std::clog << "\rDone.                 \n";
     // "\r" so it will be on the same line 
     // ... like this:
     // ... Scanlines remaining: 5,  4,  3,  2,  1,  0  all in one line.
+
+/* ----------------------------------- [4] ---------------------------------- */
+    // write_color is a function that writes the color to the output stream.
+    // ... it takes the output stream and the color as arguments.
+    // ... it writes the color to the output stream.
+
+/* ----------------------------------- [5] ---------------------------------- */
+    // write_color is a function that writes the color to the output stream.
+    // ... it takes the output stream and the color as arguments.
+    // ... it writes the color to the output stream.
+
