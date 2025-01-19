@@ -161,29 +161,5 @@ inline vec3 cross(const vec3& u, const vec3& v) {
 // if type vec3, then when we use u.cross(v) , it will return vec3(u.e[1] * v.e[2] - u.e[2] * v.e[1], u.e[2] * v.e[0] - u.e[0] * v.e[2], u.e[0] * v.e[1] - u.e[1] * v.e[0])
 // if type double or int or any other type, then when we use u.cross(v) , it will return u.e[1] * v.e[2] - u.e[2] * v.e[1]
 
-inline vec3 operator*(double t, const vec3& v) {
-    return vec3(t * v.e[0], t * v.e[1], t * v.e[2]);
-}
-// Multiply a vector by a scalar.
-// if type vec3, then when we use t * v , it will return vec3(t * v.e[0], t * v.e[1], t * v.e[2])
-// if type double or int or any other type, then when we use t * v , it will return t * v
-
-inline double dot(const vec3& u, const vec3& v) {
-    return u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2];
-}
-// Dot product of two vectors.
-// if type double or int or any other type, then when we use u.dot(v) , it will return u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2]
-// if type vec3, then when we use u.dot(v) , it will return u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2]
-
-inline vec3 cross(const vec3& u, const vec3& v) {
-    return vec3(
-        u.e[1] * v.e[2] - u.e[2] * v.e[1],
-        u.e[2] * v.e[0] - u.e[0] * v.e[2],
-        u.e[0] * v.e[1] - u.e[1] * v.e[0]);
-}
-// Cross product of two vectors.
-// if type vec3, then when we use u.cross(v) , it will return vec3(u.e[1] * v.e[2] - u.e[2] * v.e[1], u.e[2] * v.e[0] - u.e[0] * v.e[2], u.e[0] * v.e[1] - u.e[1] * v.e[0])
-// if type double or int or any other type, then when we use u.cross(v) , it will return u.e[1] * v.e[2] - u.e[2] * v.e[1]
-
 
 #endif

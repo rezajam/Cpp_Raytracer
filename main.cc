@@ -1,7 +1,9 @@
 #include "color.h"
 #include "vec3.h"
 
+
 #include <iostream>
+
 
 int main() {
 
@@ -16,7 +18,8 @@ int main() {
     for (int j = 0; j < image_height; ++j) {
         //[1]
 
-        std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush; //UPDATE PROGRESS PER ROW
+        //UPDATE PROGRESS PER ROW
+        std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush; 
         //[3]
  
         for (int i = 0; i < image_width; ++i) {
