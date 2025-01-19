@@ -6,11 +6,33 @@
 #include <iostream>
 
 
+// After mixing the ray and sphere equations and solving for t:
+// RMBR: the sqrt(b2 -4ac) !! 
 
+// Now hit_sphere shows if the ray INTERSECTS the sphere? (grazes(1) or 2 hits)? 
+bool hit_sphere(const point3& center, double radius, const ray& r) {
+// parameters are:
+// center: the center of the sphere. (object address)
+// radius: the radius of the sphere. (double)
+// r: the ray. (object address)
 
+    vec3 oc = r.origin() - center;  // A - C                      We call .origin() from ray.h to give us priv param 'orig'  
+    auto a = dot(r.direction(), r.direction()); // ∣∣B∣∣^2 OR B•B   We call .direction() from ray.h to give us priv param 'dir'
+                                                // the dot() is from vec3.h
+
+    auto b = -2.0 * dot(r.direction(), oc);     // -2B•(A-C) OR -2B•(oc)
+    auto c = dot(oc, oc) - radius*radius;       // (A-C)•(A-C) - R^2 OR (oc)•(oc) - R^2
+    auto discriminant = b*b - 4*a*c;            // B^2 - 4AC ... RMBR: the sqrt(b2 -4ac) when solving for t.
+
+    // If 'discriminant' is greater than or equal to 0, then the ray INTERSECTS the sphere. (grazes(1) or 2 hits)
+    return (discriminant >= 0); // Now go to [*]
+}
 
 color ray_color(const ray& r) {
     // return color(0,0,0);
+    if (hit_sphere(point3(0,0,-1), 0.5, r))  // [*] - check if the ray INTERSECTS the sphere.
+        return color(1, 0, 0);  // show the sphere with color
+        
     vec3 unit_direction = unit_vector(r.direction());
     auto a = 0.5*(unit_direction.y() + 1.0);
     return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0);
