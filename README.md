@@ -1,4 +1,4 @@
-# Cpp_Raytracer
+# C++ Raytracer 
 
 # Ray Tracing Project (So Far) 
 
