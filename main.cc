@@ -5,6 +5,10 @@
 
 #include <iostream>
 
+
+
+
+
 color ray_color(const ray& r) {
     // return color(0,0,0);
     vec3 unit_direction = unit_vector(r.direction());
@@ -35,45 +39,42 @@ int main() {
 
     /* --------------------------------- Camera --------------------------------- */
 
-    auto focal_length = 1.0; // distance from camera to viewport [camera_center] -->[viewport_upper_left]. We say its 1 unit.
-    auto viewport_height = 2.0; // The fixed vertical size of the virtual viewport in the 3D world.
-    // It does not directly correspond to image_height, but rather acts as the scaled reference for how tall the viewport should be.
+    auto viewport_height = 2.0; // [6] - The fixed vertical size of the virtual viewport in the 3D world.
     auto viewport_width = viewport_height * (double(image_width)/image_height); // image_width =(VIEWPORT IS stretch/squeeze to FIT IMAGE Aspect Ratio)=> viewport_width
-    //XX viewport_width = viewport_height * aspect_ratio; XXXXX NOT THIS
-    // RMBR: we have an image dim (image_width and image_height), and we want to FIT(stretch/squeeze) it viewport to IMAGE (viewport_width -> image_width , viewport_height is fixed) ==> into screen IMAGE aspect ratio (ex: 16:9).
-    // ... [me:] rmbr: game resolution 647x364 to 1080x1920 (WE STRETCH OR SQUEEZE the image to fit the screen/viewport)
-    // ... [me:] ...  this is the same thing. We have an screen(viewport here)  and we want to FIT IT to image 
+    //   viewport_width = viewport_height * aspect_ratio; XXXXX WHY NOT THIS XXXXX?
+    // [7] - |P: Why didn’t we use aspect_ratio directly ? 
 
-    // |P: Why didn’t we use aspect_ratio directly (i.e., "auto viewport_width = viewport_height * aspect_ratio;" XXXXXX)?
-    // ... because while aspect_ratio(ideal aspect ratio)                    is a DOUBLE (e.g., 16.0 / 9.0), 
-    // ... BUTTTT the ACTUAL image DIM (image_width and image_height) are INTs.
-    // ... ==>>       ACTUAL image DIM (INT) ==// might not perfectly match //==  the ideal aspect ratio (DOUBLE) 
-    // ...                                     bcz ROUNDING(double to int) or USER input.
-    //
-    // eX: If we use aspect_ratio directly, the calculated viewport width may not align with the ACTUAL image dimensions (pixel grid).
-    // ... For example, if image_width is 400, the calculated image_height = int(400 / (16.0 / 9.0)) = 225 (rounded).
-    // ... The actual aspect ratio becomes image_width / image_height = 400 / 225 ≈ 1.777... (close to 16:9, but not exact).
-    // ... [me:] see how we dont use height, and let the aspect ratio to find the height --> but since height is int --> our calculations gives double with EXTRA DECIMALS --> back to height (back to int) --> WE ROUND IT --> WE GET a round number cool BUTT WE REMOVED SOME DETAILS (NOT EXACTLY MATCHING THE SCREEN)
-    //
-    // /A: =======>> SO: WE DONT WAIT FOR THE ASPECT RATIO TO FIND THE HEIGHT. => recalculate the aspect ratio using the ACTUAL image dims (h and w)
-    // To ensure PERFECT ALIGNMENT between the VIEWPORT ASPECT RATIO and the IMAGE DIMENSIONS:
-    // ... We recalculate the aspect ratio using the ACTUAL pixel dimensions (image_width and image_height),
-    // ... guaranteeing that the viewport perfectly matches the image grid.
 
-    auto camera_center = point3(0, 0, 0);
+    // [8]
+    // TODO: lower_left_corner = camera_center -  horizontal/2 ​- vertical/2 ​- focal_length * z (i.e. focal length along Z-axis)
 
-    // Calculate the vectors across the horizontal and down the vertical viewport edges.
-    auto viewport_u = vec3(viewport_width, 0, 0);
-    auto viewport_v = vec3(0, -viewport_height, 0);
+    auto focal_length = 1.0; // dist camera to viewport [camera_center] -->[viewport_upper_left]
+    auto camera_center = point3(0, 0, 0); // The center of the camera in the 3D world. 000
+    
+    // Viewport dimensions
+    // [8] - Calculate the VECTORS (|--| and I vectors) across the horizontal and down the vertical viewport edges.
+    auto horizontal  = vec3(viewport_width, 0               , 0);
+    auto vertical =    vec3(0             , -viewport_height, 0); 
+    //                                      -viewport_height bcz // [9]
 
-    // Calculate the horizontal and vertical delta vectors from pixel to pixel.
-    auto pixel_delta_u = viewport_u / image_width;
-    auto pixel_delta_v = viewport_v / image_height;
 
-    // Calculate the location of the upper left pixel.
-    auto viewport_upper_left = camera_center
-                             - vec3(0, 0, focal_length) - viewport_u/2 - viewport_v/2;
-    auto pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+    // + __
+    // |
+    //  Upper-left corner of the viewport
+    //  RMBR: Rays are traced from left to right + --> + across the row.
+    //  ...   after one row we go DOWN, next row.
+    // [8] - Calculate the LOCATION(point3) of the upper left pixel.
+    auto viewport_upper_left = camera_center - horizontal /2 - vertical/2 - vec3(0, 0, focal_length);
+                                                                       // - vec3(0, 0, focal_length) is focal_length * z
+                                                                       // its like: z is the vec3(0, 0, 1) and its being * by focal_length
+                                                                       //           -->      vec3(0, 0, 1) * focal_length = vec3(0, 0, focal_length)
+                                                                                    
+    
+    // [10] - Calculate the horizontal and vertical delta vectors from pixel to pixel.
+    auto pixel_delta_H = horizontal  / image_width;
+    auto pixel_delta_v = vertical / image_height;
+    auto pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_H + pixel_delta_v);
+    
 
 
     /* --------------------------------- Render --------------------------------- */
@@ -101,9 +102,9 @@ int main() {
             // //[2]
 
             // // std::cout << ir << " " << ig << " " << ib << "\n";
-            // auto pixel_color = color(double(i)/(image_width-1), double(j)/(image_height-1), 0);
+            // auto pixel_co    lor = color(double(i)/(image_width-1), double(j)/(image_height-1), 0);
             // //[4]
-            auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
+            auto pixel_center = pixel00_loc + (i * pixel_delta_H) + (j * pixel_delta_v);
             auto ray_direction = pixel_center - camera_center;
             ray r(camera_center, ray_direction);
 
@@ -143,7 +144,10 @@ std::clog << "\rDone.                 \n";
     // ... like this:
     // ... Scanlines remaining: 5,  4,  3,  2,  1,  0  all in one line.
 
-/* ------------------------ USING COLOR.H and VEC3.H ------------------------ */
+/* -------------------------------------------------------------------------- */
+/*                          USING COLOR.H and VEC3.H                          */
+/* -------------------------------------------------------------------------- */
+
 /* ----------------------------------- [4] ---------------------------------- */
     // write_color is a function that writes the color to the output stream.
     // ... it takes the output stream and the color as arguments.
@@ -154,3 +158,74 @@ std::clog << "\rDone.                 \n";
     // ... it takes the output stream and the color as arguments.
     // ... it writes the color to the output stream.
 
+
+// ----------------------------------- [6] ---------------------------------- //
+    // It does not directly correspond to image_height, but rather acts as the scaled reference for how tall the viewport should be.
+
+/* ----------------------------------- [7] ---------------------------------- */
+    // |P: Why didn’t we use aspect_ratio directly ? 
+    // (i.e., "auto viewport_width = viewport_height * aspect_ratio;" XXXXXX)?
+    // RMBR: we have an image dim (image_width and image_height), and we want to FIT(stretch/squeeze) it viewport to IMAGE (viewport_width -> image_width , viewport_height is fixed) ==> into screen IMAGE aspect ratio (ex: 16:9).
+    // ... [me:] rmbr: game resolution 647x364 to 1080x1920 (WE STRETCH OR SQUEEZE the image to fit the screen/viewport)
+    // ... [me:] ...  this is the same thing. We have an screen(viewport here)  and we want to FIT IT to image 
+
+    // |P: Why didn’t we use aspect_ratio directly ? (i.e., "auto viewport_width = viewport_height * aspect_ratio;" XXXXXX)?
+    // ... because while aspect_ratio(ideal aspect ratio)                    is a DOUBLE (e.g., 16.0 / 9.0), 
+    // ... BUTTTT the ACTUAL image DIM (image_width and image_height) are INTs.
+    // ... ==>>       ACTUAL image DIM (INT) ==// might not perfectly match //==  the ideal aspect ratio (DOUBLE) 
+    // ...                                     bcz ROUNDING(double to int) or USER input.
+
+    // eX: If we use aspect_ratio directly, the calculated viewport width may not align with the ACTUAL image dimensions (pixel grid).
+    // ... For example, if image_width is 400, the calculated image_height = int(400 / (16.0 / 9.0)) = 225 (rounded).
+    // ... The actual aspect ratio becomes image_width / image_height = 400 / 225 ≈ 1.777... (close to 16:9, but not exact).
+    // ... [me:] see how we dont use height, and let the aspect ratio to find the height --> but since height is int --> our calculations gives double with EXTRA DECIMALS --> back to height (back to int) --> WE ROUND IT --> WE GET a round number cool BUTT WE REMOVED SOME DETAILS (NOT EXACTLY MATCHING THE SCREEN)
+
+    // /A: =======>> SO: WE DONT WAIT FOR THE ASPECT RATIO TO FIND THE HEIGHT. => recalculate the aspect ratio using the ACTUAL image dims (h and w)
+    // To ensure PERFECT ALIGNMENT between the VIEWPORT ASPECT RATIO and the IMAGE DIMENSIONS:
+    // ... We recalculate the aspect ratio using the ACTUAL pixel dimensions (image_width and image_height),
+    // ... guaranteeing that the viewport perfectly matches the image grid.
+
+
+// ----------------------------------- [8] ---------------------------------- //
+    // The camera is positioned at the origin ( 0 , 0 , 0 ) (0,0,0). Rays are cast from the camera through the viewport.
+    // RMBR: Rays are cast from the camera through the viewport.
+
+    // Viewport Geometry:
+
+    // The upper-left corner of the viewport is calculated as:
+
+    // upper_left_corner= camera_origin -  horizontal/2 ​- vertical/2 ​- focal_length * z
+    // Where:
+    // Horizontal Vector (horizontal): Spans the viewport Width.
+    // Vertical Vector (vertical): Spans the viewport Height.
+    // Focal Length: Distance between the camera and the viewport.
+
+
+// ----------------------------------- [9] ---------------------------------- //
+    // we used -vertical (INVERTED) bcz:
+    // [3D] Coordinate System:                             Positive Y goes upward.  (from bottom to top)
+    // [2D/Image] Coordinate System:                       Positive Y goes downward (from top to bottom).
+    // more details:
+    // In [2D] image formats (e.g., PPM, BMP, PNG):
+    // ... the origin: (0,0) is at top-left corner
+    // ... [ Y-axis    : increases from top to bottom. ] !!
+    // ... X-axis    : increases from left to right.
+    // ... its like this bcz TRADITIONALLY 2D screens, drew pixels from top-left corner ROW by ROW.
+
+    // BUTTTTT:
+    // In [3D] we have:
+    // ... the origin: (0,0,0) is at where camera position is at.
+    // ... [ Y-axis    : increases from bottom to top. ] !!
+    // ....[x].. [z]... dw
+
+// ----------------------------------- [10] ---------------------------------- //
+    // The entire point of pixel00_loc and delta adjustments is:
+    // [to NUDGE rays to even spaces between pixels.]
+    // Essentially w    e will get NOISE and artifacts from the rays we/camera/eye sets 
+    // ... So we set some even spaces pixels between rows and columns and rows
+    // ... then we NUDGE(move) the rays to the center of the close ones.
+
+    // SO now we can:
+    // Control noise and artifacts by aligning rays to pixel centers.
+    // Ensure consistency and uniform sampling across the viewport.
+    // Lay a solid foundation for accurate rendering, especially when scenes get complex with objects, lighting, and shading.
