@@ -10,7 +10,7 @@
 // RMBR: the sqrt(b2 -4ac) !! 
 
 // Now hit_sphere shows if the ray INTERSECTS the sphere? (grazes(1) or 2 hits)? 
-bool hit_sphere(const point3& center, double radius, const ray& r) {
+double hit_sphere(const point3& center, double radius, const ray& r) {
 // parameters are:
 // center: the center of the sphere. (object address)
 // radius: the radius of the sphere. (double)
@@ -25,18 +25,47 @@ bool hit_sphere(const point3& center, double radius, const ray& r) {
     auto discriminant = b*b - 4*a*c;            // B^2 - 4AC ... RMBR: the sqrt(b2 -4ac) when solving for t.
 
     // If 'discriminant' is greater than or equal to 0, then the ray INTERSECTS the sphere. (grazes(1) or 2 hits)
-    return (discriminant >= 0); // Now go to [*]
+    // return (discriminant >= 0); // Now go to [*]
+    if (discriminant < 0) { // [11]
+        return -1.0; // No intersection
+    } else {
+        return (-b - std::sqrt(discriminant)) / (2.0*a); // [12]
+        // RMBR:t = (-b  +- sqrt(discriminant)) / (2.0*a);
+        // BUTTT we use   - sqrt(discriminant)...
+        // So this returns the nearest t (intersection point). (bcz we can have 2 roots --> so get one closer to the camera)
+    }
 }
 
 color ray_color(const ray& r) {
     // return color(0,0,0);
-    if (hit_sphere(point3(0,0,-1), 0.5, r))  // [*] - check if the ray INTERSECTS the sphere.
-        return color(1, 0, 0);  // show the sphere with color
+
+    // + SPHERE  -NO SHADE
+    // if (hit_sphere(point3(0,0,-1), 0.1, r))  // [*] - check if the ray INTERSECTS the sphere.
+    //              // set (x, y, z) to change the position of the SPHERE
+    //     return color(1, 0, 0);  // show the sphere + set color
+
+    // Farther sphere with a larger radius
+    // if (hit_sphere(point3(0, 0, -3), 0.9, r))  // Farther sphere with a larger radius 
+    //     return color(0, 1, 0);  // show the second sphere with a different color GREEN
+
+    // if (hit_sphere(point3(0, 0, -1), 0.5, r))  // Closer sphere with a smaller radius
+    //     return color(1, 0, 0);  // show the first sphere with color RED
+    auto t = hit_sphere(point3(0,0,-1), 0.5, r);
+    // Checks if the ray r HITS a sphere (centered at/Position of) (0,0,−1) w/ radius 0.5.
+    if (t > 0.0) { // if r HITS
+        vec3 N = unit_vector(r.at(t) - vec3(0,0,-1)); // Calculate the NORMAL VECTOR of sphere @ intersection point.
+        // RMBR: N = (P - C) / |P - C| {p is r.at(t)}
+        // RMBR: unit_vector() is from vec3.h
+        return 0.5*color(N.x()+1, N.y()+1, N.z()+1); // Maps the NORMAL vector’s components [−1,1] --=> RGB color [0,1].
+    }
+
         
     vec3 unit_direction = unit_vector(r.direction());
     auto a = 0.5*(unit_direction.y() + 1.0);
     return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0);
+
 }
+
 
 
 int main() {
