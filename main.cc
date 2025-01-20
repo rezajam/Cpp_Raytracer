@@ -16,7 +16,7 @@ double hit_sphere(const point3& center, double radius, const ray& r) {
 // radius: the radius of the sphere. (double)
 // r: the ray. (object address)
 
-    vec3 oc = r.origin() - center;  // A - C                      We call .origin() from ray.h to give us priv param 'orig'  
+    vec3 oc =  center - r.origin();  // C - A                      We call .origin() from ray.h to give us priv param 'orig'  
     auto a = dot(r.direction(), r.direction()); // ∣∣B∣∣^2 OR B•B   We call .direction() from ray.h to give us priv param 'dir'
                                                 // the dot() is from vec3.h
 
